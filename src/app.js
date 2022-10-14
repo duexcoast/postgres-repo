@@ -1,22 +1,10 @@
 const express = require('express');
-const pg = require('pg');
+const usersRouter = require('./routes/users');
 
-pg.Pool({});
+module.exports = () => {
+  const app = express();
 
-const app = express();
-
-app.get('/users', (req, res) => {});
-
-app.post('/users', (req, res) => {});
-
-app.get('/users/:id', (req, res) => {
-  const { id } = req.params;
-});
-
-app.put('/users/:id', (req, res) => {
-  const { id } = req.params;
-});
-
-app.delete('/users/:id', (req, res) => {
-  const { id } = req.params;
-});
+  app.use(express.json());
+  app.use(usersRouter);
+  return app;
+};
