@@ -1,3 +1,5 @@
+### Return all users
 http://localhost:3005/users
 
-###
+### Find a user based of their id
+http://localhost:3005/users/1
