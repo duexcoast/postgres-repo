@@ -5,7 +5,7 @@ const pool = require('../../pool');
 const Context = require('../context');
 
 beforeAll(async () => {
-  const context = await Context.build( );
+  const context = await Context.build();
 });
 
 afterAll(() => {

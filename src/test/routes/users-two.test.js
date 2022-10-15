@@ -3,14 +3,8 @@ const app = require('../../app');
 const UserRepo = require('../../repos/user-repo');
 const pool = require('../../pool');
 
-beforeAll(() => {
-  pool.connect({
-    host: 'localhost',
-    port: 5432,
-    database: 'socialnetwork-test',
-    user: 'conorney',
-    password: '',
-  });
+beforeAll(async () => {
+  const context = await Context.build();
 });
 
 afterAll(() => {
