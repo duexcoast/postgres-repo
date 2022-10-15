@@ -58,7 +58,7 @@ class UserRepo {
     const { rows } = await pool.query(`
       SELECT COUNT(*) FROM users;
     `);
-    return rows[0].count;
+    return +rows[0].count;
   }
 }
 
