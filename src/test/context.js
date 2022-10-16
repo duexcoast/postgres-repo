@@ -1,7 +1,15 @@
 const { randomBytes } = require('crypto');
 const { default: migrate } = require('node-pg-migrate');
 const format = require('pg-format');
-const pool = require('../pool')
+const pool = require('../pool');
+
+const DEFAULT_OPTIONS = {
+  host: 'localhost',
+  port: 5432,
+  database: 'socialnetwork-test',
+  user: 'conorney',
+  password: '',
+};
 
 class Context {
   static async build() {
@@ -9,22 +17,11 @@ class Context {
     const roleName = 'a' + randomBytes(4).toString('hex');
 
     // connect to PG as usual
-    await pool.connect({
-      host: 'localhost',
-      port: 5432,
-      database: 'socialnetwork-test',
-      user: 'conorney',
-      password: '',
-    });
+    await pool.connect(DEFAULT_OPTIONS);
 
     // create a new role
     await pool.query(
-      format(
-        // %I is identifier,  %L is a literal value
-        'CREATE ROLE %I WITH LOGIN PASSWORD %L;',
-        roleName,
-        roleName
-      )
+      format('CREATE ROLE %I WITH LOGIN PASSWORD %L;', roleName, roleName)
     );
 
     // create a schema with the same name
@@ -47,7 +44,7 @@ class Context {
         host: 'localhost',
         port: 5432,
         database: 'socialnetwork-test',
-        username: roleName,
+        user: roleName,
         password: roleName,
       },
     });
@@ -56,13 +53,27 @@ class Context {
       host: 'localhost',
       port: 5432,
       database: 'socialnetwork-test',
-      username: roleName,
+      user: roleName,
       password: roleName,
     });
     return new Context(roleName);
   }
   constructor(roleName) {
     this.roleName = roleName;
+  }
+
+  async close() {
+    // disconnect from pg
+    await pool.close();
+    // reconnect as root user
+    await pool.connect(DEFAULT_OPTIONS);
+
+    // Delete the role and the schema
+    await pool.query(format('DROP SCHEMA %I CASCADE;', [this.roleName]));
+    await pool.query(format('DROP ROLE %I;', [this.roleName]));
+
+    // Disconnect
+    await pool.close();
   }
 }
 

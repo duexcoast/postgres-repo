@@ -2,28 +2,24 @@ const request = require('supertest');
 const app = require('../../app');
 const UserRepo = require('../../repos/user-repo');
 const pool = require('../../pool');
+const Context = require('../context');
 
-beforeAll(() => {
-  pool.connect({
-    host: 'localhost',
-    port: 5432,
-    database: 'socialnetwork-test',
-    user: 'conorney',
-    password: '',
-  });
+let context;
+beforeAll(async () => {
+  context = await Context.build();
 });
 
 afterAll(() => {
-  return pool.close();
+  return context.close();
 });
 
 it('create a user', async () => {
   const startingCount = await UserRepo.count();
-  expect(startingCount).toEqual(0);
+
   const username = 'coast',
     bio = 'hi hello';
 
   await request(app()).post('/users').send({ username, bio }).expect(200);
   const finishCount = await UserRepo.count();
-  expect(finishCount).toEqual(1);
+  expect(finishCount - startingCount).toEqual(1);
 });
