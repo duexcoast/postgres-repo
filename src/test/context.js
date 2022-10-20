@@ -75,6 +75,12 @@ class Context {
     // Disconnect
     await pool.close();
   }
+
+  async reset() {
+    return pool.query(`
+      DELETE FROM users;
+    `);
+  }
 }
 
 module.exports = Context;
